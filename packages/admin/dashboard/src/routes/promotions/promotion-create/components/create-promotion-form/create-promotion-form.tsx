@@ -354,8 +354,13 @@ export const CreatePromotionForm = () => {
   return (
     <RouteFocusModal.Form form={form}>
       <KeyboundForm className="flex h-full flex-col" onSubmit={handleSubmit}>
-        <ProgressTabs
-          value={tab}
+         <ProgressTabs
+        dir={
+          document.documentElement.getAttribute("dir") as
+            | "ltr"
+            | "rtl"
+            | undefined
+        }value={tab}
           onValueChange={(tab) => handleTabChange(tab as Tab)}
           className="flex h-full flex-col overflow-hidden"
         >
@@ -408,6 +413,12 @@ export const CreatePromotionForm = () => {
 
                           <Form.Control>
                             <RadioGroup
+                              dir={
+                                document.documentElement.getAttribute("dir") as
+                                  | "rtl"
+                                  | "ltr"
+                                  | undefined
+                              }
                               key={"template_id"}
                               className="flex-col gap-y-3"
                               {...field}
@@ -477,6 +488,12 @@ export const CreatePromotionForm = () => {
 
                           <Form.Control>
                             <RadioGroup
+                              dir={
+                                document.documentElement.getAttribute("dir") as
+                                  | "rtl"
+                                  | "ltr"
+                                  | undefined
+                              }
                               className="flex gap-y-3"
                               {...field}
                               value={field.value}
@@ -521,6 +538,12 @@ export const CreatePromotionForm = () => {
 
                           <Form.Control>
                             <RadioGroup
+                              dir={
+                                document.documentElement.getAttribute("dir") as
+                                  | "rtl"
+                                  | "ltr"
+                                  | undefined
+                              }
                               className="flex gap-y-3"
                               {...field}
                               value={field.value}
@@ -595,6 +618,11 @@ export const CreatePromotionForm = () => {
                             </Form.Label>
                             <Form.Control>
                               <RadioGroup
+                                dir={
+                                  document.documentElement.getAttribute(
+                                    "dir"
+                                  ) as "rtl" | "ltr" | undefined
+                                }
                                 className="flex gap-y-3"
                                 {...field}
                                 onValueChange={field.onChange}
@@ -647,6 +675,11 @@ export const CreatePromotionForm = () => {
                             </Form.Label>
                             <Form.Control>
                               <RadioGroup
+                                dir={
+                                  document.documentElement.getAttribute(
+                                    "dir"
+                                  ) as "rtl" | "ltr" | undefined
+                                }
                                 className="flex gap-y-3"
                                 {...field}
                                 onValueChange={field.onChange}
@@ -818,6 +851,11 @@ export const CreatePromotionForm = () => {
 
                               <Form.Control>
                                 <RadioGroup
+                                  dir={
+                                    document.documentElement.getAttribute(
+                                      "dir"
+                                    ) as "rtl" | "ltr" | undefined
+                                  }
                                   className="flex gap-y-3"
                                   {...field}
                                   onValueChange={field.onChange}

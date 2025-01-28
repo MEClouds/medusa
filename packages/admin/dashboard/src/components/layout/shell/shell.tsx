@@ -157,7 +157,7 @@ const Breadcrumbs = () => {
             )}
             {!isLast && (
               <span className="mx-2">
-                <TriangleRightMini />
+                <TriangleRightMini className="rtl:rotate-180" />
               </span>
             )}
           </li>
@@ -178,7 +178,7 @@ const ToggleSidebar = () => {
         onClick={() => toggle("desktop")}
         size="small"
       >
-        <SidebarLeft className="text-ui-fg-muted" />
+        <SidebarLeft className="text-ui-fg-muted rtl:rotate-180" />
       </IconButton>
       <IconButton
         className="hidden max-lg:flex"
@@ -186,7 +186,7 @@ const ToggleSidebar = () => {
         onClick={() => toggle("mobile")}
         size="small"
       >
-        <SidebarLeft className="text-ui-fg-muted" />
+        <SidebarLeft className="text-ui-fg-muted rtl:rotate-180" />
       </IconButton>
     </div>
   )
