@@ -1,5 +1,15 @@
 # @medusajs/orchestration
 
+## 2.4.1
+
+### Patch Changes
+
+- [#11190](https://github.com/medusajs/medusa/pull/11190) [`e98d3c615e8a42e09974ded9cc3ca3277e3a9217`](https://github.com/medusajs/medusa/commit/e98d3c615e8a42e09974ded9cc3ca3277e3a9217) Thanks [@carlos-r-l-rodrigues](https://github.com/carlos-r-l-rodrigues)! - chore(orchestration): validate missing PK filters when throwIfKeyNotFound
+
+- Updated dependencies [[`c9821171866a5a66ce5b7f0b8a414de48dbcdc7e`](https://github.com/medusajs/medusa/commit/c9821171866a5a66ce5b7f0b8a414de48dbcdc7e)]:
+  - @medusajs/utils@2.4.1
+  - @medusajs/types@2.4.1
+
 ## 2.4.0
 
 ### Minor Changes

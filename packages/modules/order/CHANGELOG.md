@@ -1,5 +1,11 @@
 # @medusajs/order
 
+## 2.4.1
+
+### Patch Changes
+
+- [#11181](https://github.com/medusajs/medusa/pull/11181) [`16fe43f214ecd1fb7fe6622c0c6e825e998c1be9`](https://github.com/medusajs/medusa/commit/16fe43f214ecd1fb7fe6622c0c6e825e998c1be9) Thanks [@shahednasser](https://github.com/shahednasser)! - fix(order): add data model name in define schema
+
 ## 2.4.0
 
 ### Minor Changes

@@ -1,5 +1,14 @@
 # @medusajs/utils
 
+## 2.4.1
+
+### Patch Changes
+
+- [#11188](https://github.com/medusajs/medusa/pull/11188) [`c9821171866a5a66ce5b7f0b8a414de48dbcdc7e`](https://github.com/medusajs/medusa/commit/c9821171866a5a66ce5b7f0b8a414de48dbcdc7e) Thanks [@thetutlage](https://github.com/thetutlage)! - fix: always load .env file alongside the environment specific file
+
+- Updated dependencies []:
+  - @medusajs/types@2.4.1
+
 ## 2.4.0
 
 ### Minor Changes

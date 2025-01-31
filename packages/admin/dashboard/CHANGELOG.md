@@ -1,5 +1,16 @@
 # @medusajs/dashboard
 
+## 2.4.1
+
+### Patch Changes
+
+- [#11196](https://github.com/medusajs/medusa/pull/11196) [`51d2960a5717c41e79312dd2269fb87e3a4a5b4c`](https://github.com/medusajs/medusa/commit/51d2960a5717c41e79312dd2269fb87e3a4a5b4c) Thanks [@kasperkristensen](https://github.com/kasperkristensen)! - fix(dashboard): Allow admins to update default Sales Channel and Stock Location
+
+- Updated dependencies [[`65d8d6dc0eae23c7c969664d0c2d127511cc0bd9`](https://github.com/medusajs/medusa/commit/65d8d6dc0eae23c7c969664d0c2d127511cc0bd9)]:
+  - @medusajs/js-sdk@2.4.1
+  - @medusajs/admin-shared@2.4.1
+  - @medusajs/icons@2.4.1
+
 ## 2.4.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @medusajs/admin-bundler
 
+## 2.4.1
+
+### Patch Changes
+
+- [#11172](https://github.com/medusajs/medusa/pull/11172) [`65d8d6dc0eae23c7c969664d0c2d127511cc0bd9`](https://github.com/medusajs/medusa/commit/65d8d6dc0eae23c7c969664d0c2d127511cc0bd9) Thanks [@kasperkristensen](https://github.com/kasperkristensen)! - fix(js-sdk,admin-bundler): Import resolve from qs in a way that works in both ESM and CJS projects, and add @medusajs/js-sdk to optimized deps
+
+- Updated dependencies [[`51d2960a5717c41e79312dd2269fb87e3a4a5b4c`](https://github.com/medusajs/medusa/commit/51d2960a5717c41e79312dd2269fb87e3a4a5b4c)]:
+  - @medusajs/dashboard@2.4.1
+  - @medusajs/admin-shared@2.4.1
+  - @medusajs/admin-vite-plugin@2.4.1
+
 ## 2.4.0
 
 ### Patch Changes
