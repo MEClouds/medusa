@@ -315,12 +315,12 @@ export class Compiler {
       this.#logger.warn(
         `Backend build completed with errors (${tracker.getSeconds()}s)`
       )
-    } else {
-      this.#logger.info(
-        `Backend build completed successfully (${tracker.getSeconds()}s)`
-      )
+      return false
     }
 
+    this.#logger.info(
+      `Backend build completed successfully (${tracker.getSeconds()}s)`
+    )
     return true
   }
 
@@ -359,7 +359,7 @@ export class Compiler {
       this.#logger.info(
         "Skipping admin build, since its disabled inside the medusa-config file"
       )
-      return false
+      return true
     }
 
     /**
@@ -435,12 +435,12 @@ export class Compiler {
       this.#logger.warn(
         `Plugin build completed with errors (${tracker.getSeconds()}s)`
       )
-    } else {
-      this.#logger.info(
-        `Plugin build completed successfully (${tracker.getSeconds()}s)`
-      )
+      return false
     }
 
+    this.#logger.info(
+      `Plugin build completed successfully (${tracker.getSeconds()}s)`
+    )
     return true
   }
 

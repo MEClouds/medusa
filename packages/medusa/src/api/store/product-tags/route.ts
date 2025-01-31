@@ -1,14 +1,13 @@
-import { StoreProductTagListResponse } from "@medusajs/framework/types"
+import { HttpTypes } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { StoreProductTagsParamsType } from "./validators"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest<StoreProductTagsParamsType>,
-  res: MedusaResponse<StoreProductTagListResponse>
+  req: AuthenticatedMedusaRequest<HttpTypes.StoreProductTagListParams>,
+  res: MedusaResponse<HttpTypes.StoreProductTagListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

@@ -60,6 +60,18 @@ For example:
 }
 ```
 
+In addition, make sure that the `keywords` field in `package.json` includes the keyword `medusa-plugin` and `medusa-v2`. This helps Medusa list community plugins on the Medusa website:
+
+```json title="package.json"
+{
+  "keywords": [
+    "medusa-plugin",
+    "medusa-v2"
+  ],
+  // ...
+}
+```
+
 ---
 
 ## 3. Publish Plugin Locally for Development and Testing
@@ -283,6 +295,12 @@ Then, register the plugin in your Medusa application's configurations as explain
 ---
 
 ## Update a Published Plugin
+
+<Note title="Tip">
+
+To update the Medusa dependencies in a plugin, refer to [this documentation](../../../update/page.mdx#update-plugin-project).
+
+</Note>
 
 If you've published a plugin and you've made changes to it, you'll have to publish the update to NPM again.
 
