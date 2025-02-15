@@ -1,5 +1,11 @@
 # @medusajs/core-flows
 
+## 2.5.1
+
+### Patch Changes
+
+- [#11465](https://github.com/medusajs/medusa/pull/11465) [`b37010857ab1bccda96b4694298659cc6d8f14ef`](https://github.com/medusajs/medusa/commit/b37010857ab1bccda96b4694298659cc6d8f14ef) Thanks [@kasperkristensen](https://github.com/kasperkristensen)! - fix(core-flows): Fix line item ids passed to deleteReservationsByLineItemsStep
+
 ## 2.5.0
 
 ### Patch Changes
