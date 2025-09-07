@@ -331,6 +331,17 @@ medusaIntegrationTestRunner({
         },
       ])
 
+      // create reservation for inventory item that is initially on the order
+      const inventoryModule = container.resolve(Modules.INVENTORY)
+      await inventoryModule.createReservationItems([
+        {
+          inventory_item_id: inventoryItem.id,
+          location_id: location.id,
+          quantity: 2,
+          line_item_id: order.items[0].id,
+        },
+      ])
+
       const shippingOptionPayload = {
         name: "Return shipping",
         service_zone_id: fulfillmentSet.service_zones[0].id,
@@ -436,7 +447,6 @@ medusaIntegrationTestRunner({
           expect(orderResult.summary).toEqual(
             expect.objectContaining({
               paid_total: 61,
-              difference_sum: 0,
               refunded_total: 0,
               transaction_total: 61,
               pending_difference: 0,
@@ -732,7 +742,7 @@ medusaIntegrationTestRunner({
           expect(paymentCollections[0]).toEqual(
             expect.objectContaining({
               status: "not_paid",
-              amount: 109.5,
+              amount: 113.21,
               currency_code: "usd",
             })
           )
@@ -752,14 +762,39 @@ medusaIntegrationTestRunner({
         })
 
         it("should go through cancel flow successfully", async () => {
-          await api.post(`/admin/claims/${claimId}/cancel`, {}, adminHeaders)
-
-          const [claim] = (
+          // fetch claim to get return id
+          let claim = (
             await api.get(
-              `/admin/claims?fields=*claim_items,*additional_items`,
+              `/admin/claims/${claimId}?fields=return_id`,
               adminHeaders
             )
-          ).data.claims
+          ).data.claim
+
+          // fetch return and fulfillment
+          const return_ = (
+            await api.get(
+              `/admin/returns/${claim.return_id}?fields=fulfillments.id`,
+              adminHeaders
+            )
+          ).data.return
+
+          /**
+           * Claim cannot be canceled unless all fulfillments are not canceled
+           */
+          await api.post(
+            `/admin/fulfillments/${return_.fulfillments[0].id}/cancel`,
+            {},
+            adminHeaders
+          )
+
+          await api.post(`/admin/claims/${claimId}/cancel`, {}, adminHeaders)
+
+          claim = (
+            await api.get(
+              `/admin/claims/${claimId}?fields=*claim_items,*additional_items`,
+              adminHeaders
+            )
+          ).data.claim
 
           expect(claim.canceled_at).toBeDefined()
 
@@ -776,7 +811,7 @@ medusaIntegrationTestRunner({
         })
 
         it("should create a payment collection successfully & mark as paid", async () => {
-          const paymentDelta = 109.5
+          const paymentDelta = 113.21
           const orderForPayment = (
             await api.get(`/admin/orders/${order.id}`, adminHeaders)
           ).data.order
@@ -1182,9 +1217,9 @@ medusaIntegrationTestRunner({
 
           expect(orderCheck.summary).toEqual(
             expect.objectContaining({
-              pending_difference: -11,
-              current_order_total: 50,
-              original_order_total: 60,
+              pending_difference: -9.7,
+              current_order_total: 76.3,
+              original_order_total: 61,
             })
           )
 

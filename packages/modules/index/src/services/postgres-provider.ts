@@ -2,19 +2,21 @@ import {
   Context,
   Event,
   IndexTypes,
+  QueryGraphFunction,
   RemoteQueryFunction,
   Subscriber,
 } from "@medusajs/framework/types"
 import {
   MikroOrmBaseRepository as BaseRepository,
+  CommonEvents,
   ContainerRegistrationKeys,
   deepMerge,
   InjectManager,
   InjectTransactionManager,
   isDefined,
   MedusaContext,
-  promiseAll,
   toMikroORMEntity,
+  unflattenObjectKeys,
 } from "@medusajs/framework/utils"
 import {
   EntityManager,
@@ -66,37 +68,6 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
 
     this.schemaObjectRepresentation_ = options.schemaObjectRepresentation
     this.schemaEntitiesMap_ = options.entityMap
-
-    // Add a new column for each key that can be found in the jsonb data column to perform indexes and query on it.
-    // So far, the execution time is about the same
-    /*;(async () => {
-      const query = [
-        ...new Set(
-          Object.keys(this.schemaObjectRepresentation_)
-            .filter(
-              (key) =>
-                ![
-                  "_serviceNameModuleConfigMap",
-                  "_schemaPropertiesMap",
-                ].includes(key)
-            )
-            .map((key) => {
-              return this.schemaObjectRepresentation_[key].fields.filter(
-                (field) => !field.includes(".")
-              )
-            })
-            .flat()
-        ),
-      ].map(
-        (field) =>
-          "ALTER TABLE index_data ADD IF NOT EXISTS " +
-          field +
-          " text GENERATED ALWAYS AS (NEW.data->>'" +
-          field +
-          "') STORED"
-      )
-      await this.manager_.execute(query.join(";"))
-    })()*/
   }
 
   async onApplicationStart() {
@@ -136,7 +107,7 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
         const parentAlias = field.split(".")[0]
         const parentSchemaObjectRepresentation =
           schemaEntityObjectRepresentation.parents.find(
-            (parent) => parent.ref.alias === parentAlias
+            (parent) => parent.inverseSideProp === parentAlias
           )
 
         if (!parentSchemaObjectRepresentation) {
@@ -161,9 +132,11 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     }
   }
 
-  protected static parseMessageData<T>(message?: Event): {
+  protected static parseMessageData<TData extends { id: string | string[] }>(
+    message?: Event
+  ): {
     action: string
-    data: { id: string }[]
+    data: TData[]
     ids: string[]
   } | void {
     const isExpectedFormat =
@@ -175,7 +148,7 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
 
     const result: {
       action: string
-      data: { id: string }[]
+      data: TData[]
       ids: string[]
     } = {
       action: "",
@@ -184,44 +157,33 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     }
 
     result.action = message!.metadata!.action as string
-    result.data = message!.data as { id: string }[]
+    result.data = message!.data as TData[]
     result.data = Array.isArray(result.data) ? result.data : [result.data]
-    result.ids = result.data.map((d) => d.id)
+    result.ids = result.data.flatMap((d) =>
+      Array.isArray(d.id) ? d.id : [d.id]
+    )
 
     return result
   }
 
   consumeEvent(
     schemaEntityObjectRepresentation: IndexTypes.SchemaObjectEntityRepresentation
-  ): Subscriber<{ id: string }> {
-    return async (data: Event) => {
+  ): Subscriber<{ id: string | string[] }> {
+    return async (event: Event) => {
       await this.#isReady_
 
-      const data_: { id: string }[] = Array.isArray(data.data)
-        ? data.data
-        : [data.data]
-      let ids: string[] = data_.map((d) => d.id)
-      let action = data.name.split(".").pop() || ""
+      const data_: { id: string }[] = Array.isArray(event.data)
+        ? event.data
+        : [event.data]
+      let ids: string[] = data_.flatMap((d) =>
+        Array.isArray(d.id) ? d.id : [d.id]
+      )
+      let action = event.name.split(".").pop() || ""
 
-      const parsedMessage = PostgresProvider.parseMessageData(data)
+      const parsedMessage = PostgresProvider.parseMessageData(event)
       if (parsedMessage) {
         action = parsedMessage.action
         ids = parsedMessage.ids
-      }
-
-      const { fields, alias } = schemaEntityObjectRepresentation
-      const { data: entityData } = await this.query_.graph({
-        entity: alias,
-        filters: {
-          id: ids,
-        },
-        fields: [...new Set(["id", ...fields])],
-      })
-
-      const argument = {
-        entity: schemaEntityObjectRepresentation.entity,
-        data: entityData,
-        schemaEntityObjectRepresentation,
       }
 
       const targetMethod = this.eventActionToMethodMap_[action]
@@ -230,7 +192,41 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
         return
       }
 
-      await this[targetMethod](argument)
+      const { fields, alias } = schemaEntityObjectRepresentation
+
+      let withDeleted: boolean | undefined
+      if (action === CommonEvents.DELETED || action === CommonEvents.DETACHED) {
+        withDeleted = true
+      }
+
+      // Process ids in batches of 100
+      const batchSize = 100
+      const idsBatches: string[][] = []
+
+      for (let i = 0; i < ids.length; i += batchSize) {
+        idsBatches.push(ids.slice(i, i + batchSize))
+      }
+
+      for (const idsBatch of idsBatches) {
+        const graphConfig: Parameters<QueryGraphFunction>[0] = {
+          entity: alias,
+          filters: {
+            id: idsBatch,
+          },
+          fields: [...new Set(["id", ...fields])],
+          withDeleted,
+        }
+
+        const { data: entityData } = await this.query_.graph(graphConfig)
+
+        const argument = {
+          entity: schemaEntityObjectRepresentation.entity,
+          data: entityData,
+          schemaEntityObjectRepresentation,
+        }
+
+        await this[targetMethod](argument)
+      }
     }
   }
 
@@ -241,19 +237,15 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
   ): Promise<IndexTypes.QueryResultSet<TEntry>> {
     await this.#isReady_
 
-    const {
-      keepFilteredEntities,
-      fields = [],
-      filters = {},
-      joinFilters = {},
-    } = config
+    const { fields = [], filters = {}, joinFilters = {}, idsOnly } = config
     const { take, skip, order: inputOrderBy = {} } = config.pagination ?? {}
 
     const select = normalizeFieldsSelection(fields)
-    const where = flattenObjectKeys(filters)
+    const where = flattenObjectKeys(unflattenObjectKeys(filters))
 
-    const joinWhere = flattenObjectKeys(joinFilters)
-    const orderBy = flattenObjectKeys(inputOrderBy)
+    const inputOrderByObj = unflattenObjectKeys(inputOrderBy)
+    const joinWhere = flattenObjectKeys(unflattenObjectKeys(joinFilters))
+    const orderBy = flattenObjectKeys(inputOrderByObj)
 
     const { manager } = sharedContext as { manager: SqlEntityManager }
     let hasPagination = false
@@ -266,14 +258,16 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
       }
     }
 
-    const requestedFields = deepMerge(deepMerge(select, filters), inputOrderBy)
+    const requestedFields = deepMerge(
+      deepMerge(select, filters),
+      inputOrderByObj
+    )
 
     const connection = manager.getConnection()
     const qb = new QueryBuilder({
       schema: this.schemaObjectRepresentation_,
       entityMap: this.schemaEntitiesMap_,
       knex: connection.getKnex(),
-      rawConfig: config,
       selector: {
         select,
         where,
@@ -282,60 +276,33 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
       options: {
         skip,
         take,
-        keepFilteredEntities,
         orderBy,
       },
+      rawConfig: config,
       requestedFields,
+      idsOnly,
     })
 
-    const [sql, sqlCount] = qb.buildQuery({
+    const { sql, sqlCount } = qb.buildQuery({
       hasPagination,
-      returnIdOnly: !!keepFilteredEntities,
       hasCount,
     })
 
-    const promises: Promise<any>[] = []
-
-    promises.push(manager.execute(sql))
-
-    if (hasCount && sqlCount) {
-      promises.push(manager.execute(sqlCount))
-    }
-
-    let [resultSet, count] = await promiseAll(promises)
+    const [resultSet, countResult] = await Promise.all([
+      manager.execute(sql),
+      hasCount ? manager.execute(sqlCount!) : null,
+    ])
 
     const resultMetadata: IndexTypes.QueryFunctionReturnPagination | undefined =
       hasPagination
-        ? {
-            count: hasCount ? parseInt(count[0].count) : undefined,
+        ? ({
+            estimate_count: hasCount
+              ? parseInt(countResult![0]?.estimate_count ?? 0)
+              : undefined,
             skip,
             take,
-          }
+          } as IndexTypes.QueryFunctionReturnPagination)
         : undefined
-
-    if (keepFilteredEntities) {
-      const mainEntity = Object.keys(select)[0]
-
-      const ids = resultSet.map((r) => r[`${mainEntity}.id`])
-      if (ids.length) {
-        const result = await this.query<TEntry>(
-          {
-            fields,
-            joinFilters,
-            filters: {
-              [mainEntity]: {
-                id: ids,
-              },
-            },
-            pagination: undefined,
-            keepFilteredEntities: false,
-          } as IndexTypes.IndexQueryConfig<TEntry>,
-          sharedContext
-        )
-        result.metadata ??= resultMetadata
-        return result
-      }
-    }
 
     return {
       data: qb.buildObjectFromResultset(
@@ -367,7 +334,9 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     @MedusaContext() sharedContext: Context<SqlEntityManager> = {}
   ) {
     const { transactionManager: em } = sharedContext
-    const indexRepository = em!.getRepository(toMikroORMEntity(IndexData))
+    const indexRepository = em!.getRepository(
+      toMikroORMEntity(IndexData)
+    ) as EntityRepository<any>
     const indexRelationRepository: EntityRepository<any> = em!.getRepository(
       toMikroORMEntity(IndexRelation)
     )
@@ -379,32 +348,31 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     } = PostgresProvider.parseData(data, schemaEntityObjectRepresentation)
 
     /**
+     * Clean the entity data to only keep the properties that are defined in the schema
+     */
+    const cleanedData = data_.map((entityData) => {
+      return entityProperties.reduce((acc, property) => {
+        acc[property] = entityData[property]
+        return acc
+      }, {}) as TData
+    })
+
+    /**
      * Loop through the data and create index entries for each entity as well as the
      * index relation entries if the entity has parents
      */
 
-    for (const entityData of data_) {
-      /**
-       * Clean the entity data to only keep the properties that are defined in the schema
-       */
+    const entitiesToUpsert: Set<string> = new Set()
+    const relationsToUpsert: Set<string> = new Set()
 
-      const cleanedEntityData = entityProperties.reduce((acc, property) => {
-        acc[property] = entityData[property]
-        return acc
-      }, {}) as TData
-
-      await indexRepository.upsert(
-        {
-          id: cleanedEntityData.id,
+    cleanedData.forEach((entityData, index) => {
+      entitiesToUpsert.add(
+        JSON.stringify({
+          id: entityData.id,
           name: entity,
-          data: cleanedEntityData,
+          data: entityData,
           staled_at: null,
-        },
-        {
-          onConflictAction: "merge",
-          onConflictFields: ["id", "name"],
-          onConflictMergeFields: ["data", "staled_at"],
-        }
+        })
       )
 
       /**
@@ -415,7 +383,7 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
         parentsProperties
       )) {
         const parentAlias = parentProperties[0].split(".")[0]
-        const parentData = entityData[parentAlias] as TData[]
+        const parentData = data_[index][parentAlias] as TData[]
 
         if (!parentData) {
           continue
@@ -426,43 +394,46 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
           : [parentData]
 
         for (const parentData_ of parentDataCollection) {
-          await indexRepository.upsert(
-            {
-              id: (parentData_ as any).id,
-              name: parentEntity,
-              data: parentData_,
-              staled_at: null,
-            },
-            {
-              onConflictAction: "merge",
-              onConflictFields: ["id", "name"],
-              onConflictMergeFields: ["data", "staled_at"],
-            }
-          )
-
-          await indexRelationRepository.upsert(
-            {
-              parent_id: (parentData_ as any).id,
+          relationsToUpsert.add(
+            JSON.stringify({
+              parent_id: parentData_.id,
               parent_name: parentEntity,
-              child_id: cleanedEntityData.id,
+              child_id: entityData.id,
               child_name: entity,
               pivot: `${parentEntity}-${entity}`,
               staled_at: null,
-            },
-            {
-              onConflictAction: "merge",
-              onConflictFields: [
-                "pivot",
-                "parent_id",
-                "child_id",
-                "parent_name",
-                "child_name",
-              ],
-              onConflictMergeFields: ["staled_at"],
-            }
+            })
           )
         }
       }
+    })
+
+    if (entitiesToUpsert.size) {
+      await indexRepository.upsertMany(
+        Array.from(entitiesToUpsert).map((entity) => JSON.parse(entity)),
+        {
+          onConflictAction: "merge",
+          onConflictFields: ["id", "name"],
+          onConflictMergeFields: ["data", "staled_at"],
+        }
+      )
+    }
+
+    if (relationsToUpsert.size) {
+      await indexRelationRepository.upsertMany(
+        Array.from(relationsToUpsert).map((relation) => JSON.parse(relation)),
+        {
+          onConflictAction: "merge",
+          onConflictFields: [
+            "pivot",
+            "parent_id",
+            "child_id",
+            "parent_name",
+            "child_name",
+          ],
+          onConflictMergeFields: ["staled_at"],
+        }
+      )
     }
   }
 
@@ -488,7 +459,9 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     @MedusaContext() sharedContext: Context<SqlEntityManager> = {}
   ) {
     const { transactionManager: em } = sharedContext
-    const indexRepository = em!.getRepository(toMikroORMEntity(IndexData))
+    const indexRepository = em!.getRepository(
+      toMikroORMEntity(IndexData)
+    ) as EntityRepository<any>
 
     const { data: data_, entityProperties } = PostgresProvider.parseData(
       data,
@@ -496,24 +469,22 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     )
 
     await indexRepository.upsertMany(
-      data_.map(
-        (entityData) => {
-          return {
-            id: entityData.id,
-            name: entity,
-            data: entityProperties.reduce((acc, property) => {
-              acc[property] = entityData[property]
-              return acc
-            }, {}),
-            staled_at: null,
-          }
-        },
-        {
-          onConflictAction: "merge",
-          onConflictFields: ["id", "name"],
-          onConflictMergeFields: ["data", "staled_at"],
+      data_.map((entityData) => {
+        return {
+          id: entityData.id,
+          name: entity,
+          data: entityProperties.reduce((acc, property) => {
+            acc[property] = entityData[property]
+            return acc
+          }, {}),
+          staled_at: null,
         }
-      )
+      }),
+      {
+        onConflictAction: "merge",
+        onConflictFields: ["id", "name"],
+        onConflictMergeFields: ["data", "staled_at"],
+      }
     )
   }
 
@@ -594,7 +565,7 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
     const indexRepository = em!.getRepository(toMikroORMEntity(IndexData))
     const indexRelationRepository = em!.getRepository(
       toMikroORMEntity(IndexRelation)
-    )
+    ) as EntityRepository<any>
 
     const { data: data_, entityProperties } = PostgresProvider.parseData(
       data,
@@ -645,77 +616,66 @@ export class PostgresProvider implements IndexTypes.StorageProvider {
       )
     }
 
-    for (const entityData of data_) {
-      /**
-       * Clean the link entity data to only keep the properties that are defined in the schema
-       */
+    /**
+     * Clean the link entity data to only keep the properties that are defined in the schema
+     */
 
-      const cleanedEntityData = entityProperties.reduce((acc, property) => {
+    const cleanedData = data_.map((entityData) => {
+      return entityProperties.reduce((acc, property) => {
         acc[property] = entityData[property]
         return acc
       }, {}) as TData
+    })
 
-      await indexRepository.upsert(
-        {
-          id: cleanedEntityData.id,
-          name: entity,
-          data: cleanedEntityData,
-          staled_at: null,
-        },
-        {
-          onConflictAction: "merge",
-          onConflictFields: ["id", "name"],
-          onConflictMergeFields: ["data", "staled_at"],
-        }
-      )
-
-      /**
-       * Create the index relation entries for the parent entity and the child entity
-       */
-
-      await indexRelationRepository.upsert(
+    let relationsToUpsert: any[] = []
+    const entitiesToUpsert = cleanedData.map((entityData) => {
+      relationsToUpsert.push(
         {
           parent_id: entityData[parentPropertyId] as string,
           parent_name: parentEntityName,
-          child_id: cleanedEntityData.id,
+          child_id: entityData.id,
           child_name: entity,
           pivot: `${parentEntityName}-${entity}`,
           staled_at: null,
         },
         {
-          onConflictAction: "merge",
-          onConflictFields: [
-            "pivot",
-            "parent_id",
-            "child_id",
-            "parent_name",
-            "child_name",
-          ],
-          onConflictMergeFields: ["staled_at"],
-        }
-      )
-
-      await indexRelationRepository.upsert(
-        {
-          parent_id: cleanedEntityData.id,
+          parent_id: entityData.id,
           parent_name: entity,
           child_id: entityData[childPropertyId] as string,
           child_name: childEntityName,
           pivot: `${entity}-${childEntityName}`,
           staled_at: null,
-        },
-        {
-          onConflictAction: "merge",
-          onConflictFields: [
-            "pivot",
-            "parent_id",
-            "child_id",
-            "parent_name",
-            "child_name",
-          ],
-          onConflictMergeFields: ["staled_at"],
         }
       )
+
+      return {
+        id: entityData.id,
+        name: entity,
+        data: entityData,
+        staled_at: null,
+      }
+    })
+
+    if (entitiesToUpsert.length) {
+      await indexRepository.upsertMany(entitiesToUpsert, {
+        onConflictAction: "merge",
+        onConflictFields: ["id", "name"],
+        onConflictMergeFields: ["data", "staled_at"],
+      })
+    }
+
+    if (relationsToUpsert.length) {
+      await indexRelationRepository.upsertMany(relationsToUpsert, {
+        onConflictAction: "merge",
+        onConflictFields: [
+          "pivot",
+          "parent_id",
+          "child_id",
+          "parent_name",
+          "child_name",
+        ],
+        onConflictMergeFields: ["staled_at"],
+      })
     }
   }
 

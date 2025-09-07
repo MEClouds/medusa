@@ -1,6 +1,10 @@
 export const schemaObjectRepresentationPropertiesToOmit = [
   "_schemaPropertiesMap",
   "_serviceNameModuleConfigMap",
+  "JSON",
+  "DateTime",
+  "Date",
+  "Time",
 ]
 
 export type Select = {
@@ -25,5 +29,4 @@ export type QueryOptions = {
   skip?: number
   take?: number
   orderBy?: OrderBy | OrderBy[]
-  keepFilteredEntities?: boolean
 }

@@ -25,6 +25,8 @@ import {
   RefundPaymentOutput,
   SavePaymentMethodInput,
   SavePaymentMethodOutput,
+  UpdateAccountHolderInput,
+  UpdateAccountHolderOutput,
   UpdatePaymentInput,
   UpdatePaymentOutput,
   WebhookActionResult,
@@ -58,6 +60,10 @@ export default class PaymentProviderService extends ModulesSdkUtils.MedusaIntern
         const errMessage = `
 Unable to retrieve the payment provider with id: ${providerId}
 Please make sure that the provider is registered in the container and it is configured correctly in your project configuration file.`
+
+        // Log full error for debugging
+        this.#logger.error(`AwilixResolutionError: ${err.message}`, err)
+
         throw new Error(errMessage)
       }
 
@@ -147,6 +153,21 @@ Please make sure that the provider is registered in the container and it is conf
     }
 
     return await provider.createAccountHolder(input)
+  }
+
+  async updateAccountHolder(
+    providerId: string,
+    input: UpdateAccountHolderInput
+  ): Promise<UpdateAccountHolderOutput> {
+    const provider = this.retrieveProvider(providerId)
+    if (!provider.updateAccountHolder) {
+      this.#logger.warn(
+        `Provider ${providerId} does not support updating account holders`
+      )
+      return {} as unknown as UpdateAccountHolderOutput
+    }
+
+    return await provider.updateAccountHolder(input)
   }
 
   async deleteAccountHolder(

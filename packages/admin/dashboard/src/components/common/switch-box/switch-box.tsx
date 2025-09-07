@@ -55,9 +55,9 @@ export const SwitchBox = <
                   {...field}
                   checked={value}
                   onCheckedChange={(e) => {
-                    onCheckedChange?.(e)
-                    onChange(e)
-                  }}
+                      onCheckedChange?.(e)
+                      onChange(e)
+                    }}
                 />
               </Form.Control>
               <div>

@@ -5,6 +5,7 @@ import { Claim } from "./claim"
 import { Currency } from "./currency"
 import { Customer } from "./customer"
 import { CustomerGroup } from "./customer-group"
+import { DraftOrder } from "./draft-order"
 import { Exchange } from "./exchange"
 import { Fulfillment } from "./fulfillment"
 import { FulfillmentProvider } from "./fulfillment-provider"
@@ -16,6 +17,7 @@ import { Order } from "./order"
 import { OrderEdit } from "./order-edit"
 import { Payment } from "./payment"
 import { PaymentCollection } from "./payment-collection"
+import { Plugin } from "./plugin"
 import { PriceList } from "./price-list"
 import { PricePreference } from "./price-preference"
 import { Product } from "./product"
@@ -35,6 +37,7 @@ import { ShippingOption } from "./shipping-option"
 import { ShippingProfile } from "./shipping-profile"
 import { StockLocation } from "./stock-location"
 import { Store } from "./store"
+import { TaxProvider } from "./tax-provider"
 import { TaxRate } from "./tax-rate"
 import { TaxRegion } from "./tax-region"
 import { Upload } from "./upload"
@@ -129,6 +132,10 @@ export class Admin {
   /**
    * @tags order
    */
+  public draftOrder: DraftOrder
+  /**
+   * @tags order
+   */
   public orderEdit: OrderEdit
   /**
    * @tags order
@@ -203,9 +210,17 @@ export class Admin {
    */
   public promotion: Promotion
   /**
+   * @tags tax
+   */
+  public taxProvider: TaxProvider
+  /**
    * @tags promotion
    */
   public campaign: Campaign
+  /**
+   * @tags plugin
+   */
+  public plugin: Plugin
 
   constructor(client: Client) {
     this.invite = new Invite(client)
@@ -229,6 +244,7 @@ export class Admin {
     this.inventoryItem = new InventoryItem(client)
     this.notification = new Notification(client)
     this.order = new Order(client)
+    this.draftOrder = new DraftOrder(client)
     this.orderEdit = new OrderEdit(client)
     this.return = new Return(client)
     this.claim = new Claim(client)
@@ -249,5 +265,7 @@ export class Admin {
     this.customerGroup = new CustomerGroup(client)
     this.promotion = new Promotion(client)
     this.campaign = new Campaign(client)
+    this.plugin = new Plugin(client)
+    this.taxProvider = new TaxProvider(client)
   }
 }

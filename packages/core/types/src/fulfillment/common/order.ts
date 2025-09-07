@@ -1,3 +1,4 @@
+import { OrderSummaryDTO } from "../../order/common"
 import { BigNumberRawValue, BigNumberValue } from "../../totals"
 
 /**
@@ -437,7 +438,7 @@ interface FulfillmentOrderAddressDTO {
   country_code?: string
 
   /**
-   * The province/state of the address.
+   * The lower-case [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) province/state of the address.
    */
   province?: string
 
@@ -1086,91 +1087,4 @@ interface FulfillmentOrderShippingMethodDTO {
  *
  * The order summary details.
  */
-type FulfillmentOrderSummaryDTO = {
-  /**
-   * The total of the order summary.
-   */
-  total: BigNumberValue
-
-  /**
-   * The subtotal of the order summary.
-   */
-  subtotal: BigNumberValue
-
-  /**
-   * The total tax of the order summary.
-   */
-  total_tax: BigNumberValue
-
-  /**
-   * The ordered total of the order summary.
-   */
-  ordered_total: BigNumberValue
-
-  /**
-   * The fulfilled total of the order summary.
-   */
-  fulfilled_total: BigNumberValue
-
-  /**
-   * The returned total of the order summary.
-   */
-  returned_total: BigNumberValue
-
-  /**
-   * The return request total of the order summary.
-   */
-  return_request_total: BigNumberValue
-
-  /**
-   * The write off total of the order summary.
-   */
-  write_off_total: BigNumberValue
-
-  /**
-   * The projected total of the order summary.
-   */
-  projected_total: BigNumberValue
-
-  /**
-   * The net total of the order summary.
-   */
-  net_total: BigNumberValue
-
-  /**
-   * The net subtotal of the order summary.
-   */
-  net_subtotal: BigNumberValue
-
-  /**
-   * The net total tax of the order summary.
-   */
-  net_total_tax: BigNumberValue
-
-  /**
-   * The balance of the order summary.
-   */
-  balance: BigNumberValue
-
-  /**
-   * The paid total of the order summary.
-   */
-  paid_total: BigNumberValue
-
-  /**
-   * The refunded total of the order summary.
-   */
-  refunded_total: BigNumberValue
-
-  /**
-   * The pending difference of the order.
-   */
-  pending_difference: BigNumberValue
-
-  /**
-   * The raw pending difference of the order.
-   *
-   * @ignore
-   */
-  raw_pending_difference: BigNumberRawValue
-}
+type FulfillmentOrderSummaryDTO = OrderSummaryDTO

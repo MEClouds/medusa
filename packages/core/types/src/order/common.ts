@@ -21,12 +21,15 @@ export type ChangeActionType =
   | "RETURN_ITEM"
   | "SHIPPING_ADD"
   | "SHIPPING_REMOVE"
+  | "SHIPPING_UPDATE"
   | "SHIP_ITEM"
   | "WRITE_OFF_ITEM"
   | "REINSTATE_ITEM"
   | "TRANSFER_CUSTOMER"
   | "UPDATE_ORDER_PROPERTIES"
   | "CREDIT_LINE_ADD"
+  | "PROMOTION_ADD"
+  | "PROMOTION_REMOVE"
 
 export type OrderChangeStatus =
   | "confirmed"
@@ -41,104 +44,23 @@ export type OrderChangeStatus =
  * The order summary details.
  */
 export type OrderSummaryDTO = {
-  /**
-   * The total of the order summary.
-   */
-  total: BigNumberValue
-
-  /**
-   * The subtotal of the order summary.
-   */
-  subtotal: BigNumberValue
-
-  /**
-   * The total tax of the order summary.
-   */
-  total_tax: BigNumberValue
-
-  /**
-   * The ordered total of the order summary.
-   */
-  ordered_total: BigNumberValue
-
-  /**
-   * The fulfilled total of the order summary.
-   */
-  fulfilled_total: BigNumberValue
-
-  /**
-   * The returned total of the order summary.
-   */
-  returned_total: BigNumberValue
-
-  /**
-   * The return request total of the order summary.
-   */
-  return_request_total: BigNumberValue
-
-  /**
-   * The write off total of the order summary.
-   */
-  write_off_total: BigNumberValue
-
-  /**
-   * The projected total of the order summary.
-   */
-  projected_total: BigNumberValue
-
-  /**
-   * The net total of the order summary.
-   */
-  net_total: BigNumberValue
-
-  /**
-   * The net subtotal of the order summary.
-   */
-  net_subtotal: BigNumberValue
-
-  /**
-   * The net total tax of the order summary.
-   */
-  net_total_tax: BigNumberValue
-
-  /**
-   * The balance of the order summary.
-   */
-  balance: BigNumberValue
-
-  /**
-   * The paid total of the order summary.
-   */
-  paid_total: BigNumberValue
-
-  /**
-   * The refunded total of the order summary.
-   */
-  refunded_total: BigNumberValue
-
-  /**
-   * The pending difference of the order.
-   */
   pending_difference: BigNumberValue
+  current_order_total: BigNumberValue
+  original_order_total: BigNumberValue
+  transaction_total: BigNumberValue
+  paid_total: BigNumberValue
+  refunded_total: BigNumberValue
+  credit_line_total: BigNumberValue
+  accounting_total: BigNumberValue
 
-  /**
-   * The raw pending difference of the order.
-   *
-   * @ignore
-   */
   raw_pending_difference: BigNumberRawValue
-
-  /**
-   * The sum difference of all actions
-   */
-  difference_sum: BigNumberValue
-
-  /**
-   * The raw sum difference of all actions
-   *
-   * @ignore
-   */
-  raw_difference_sum: BigNumberRawValue
+  raw_current_order_total: BigNumberRawValue
+  raw_original_order_total: BigNumberRawValue
+  raw_transaction_total: BigNumberRawValue
+  raw_paid_total: BigNumberRawValue
+  raw_refunded_total: BigNumberRawValue
+  raw_credit_line_total: BigNumberRawValue
+  raw_accounting_total: BigNumberRawValue
 }
 
 /**
@@ -408,7 +330,7 @@ export interface OrderAddressDTO {
   country_code?: string
 
   /**
-   * The province/state of the address.
+   * The lower-case [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) province/state of the address.
    */
   province?: string
 
@@ -871,6 +793,11 @@ export interface OrderLineItemDTO extends OrderLineItemTotalsDTO {
   is_discountable: boolean
 
   /**
+   * Indicates whether the line item is a gift card.
+   */
+  is_giftcard: boolean
+
+  /**
    * Indicates whether the line item price is tax inclusive.
    */
   is_tax_inclusive: boolean
@@ -1196,6 +1123,11 @@ export interface OrderDTO {
   summary?: OrderSummaryDTO
 
   /**
+   * Whether the order is a draft order.
+   */
+  is_draft_order?: boolean
+
+  /**
    * Holds custom data in key-value pairs.
    */
   metadata?: Record<string, unknown> | null
@@ -1214,6 +1146,11 @@ export interface OrderDTO {
    * When the order was updated.
    */
   updated_at: string | Date
+
+  /**
+   * When the order was deleted.
+   */
+  deleted_at?: string | Date
 
   /**
    * The original item total of the order.
@@ -1289,6 +1226,11 @@ export interface OrderDTO {
    * The discount tax total of the order.
    */
   discount_tax_total: BigNumberValue
+
+  /**
+   * The credit line total of the order.
+   */
+  credit_line_total: BigNumberValue
 
   /**
    * The gift card total of the order.
@@ -1427,6 +1369,13 @@ export interface OrderDTO {
    * @ignore
    */
   raw_discount_tax_total: BigNumberRawValue
+
+  /**
+   * The raw credit line total of the order.
+   *
+   * @ignore
+   */
+  raw_credit_line_total: BigNumberRawValue
 
   /**
    * The raw gift card total of the order.
@@ -1668,6 +1617,18 @@ export interface OrderReturnItemDTO {
    * @ignore
    */
   raw_received_quantity?: BigNumberRawValue
+
+  /**
+   * The damaged quantity of the return item.
+   */
+  damaged_quantity?: number
+
+  /**
+   * The raw damaged quantity of the return item.
+   *
+   * @ignore
+   */
+  raw_damaged_quantity?: BigNumberRawValue
 
   /**
    * Holds custom data in key-value pairs.
@@ -2360,6 +2321,11 @@ export interface OrderTransactionDTO {
   order_id: string
 
   /**
+   * The associated order version
+   */
+  version: number
+
+  /**
    * The associated order
    *
    * @expandable
@@ -3046,7 +3012,12 @@ export interface OrderChangeReturn {
   /**
    * The list of shipping methods created or updated.
    */
-  shippingMethods: any[]
+  shipping_methods: any[]
+
+  /**
+   * The list of credit lines created or updated.
+   */
+  credit_lines: OrderCreditLineDTO[]
 }
 
 /**
@@ -3094,6 +3065,11 @@ export interface OrderCreditLineDTO {
    * @expandable
    */
   order: OrderDTO
+
+  /**
+   * The amount of the credit line.
+   */
+  amount: BigNumberValue
 
   /**
    * The reference model name that the credit line is generated from

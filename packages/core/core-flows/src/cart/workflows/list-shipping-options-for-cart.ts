@@ -1,4 +1,5 @@
 import {
+  createHook,
   createWorkflow,
   transform,
   WorkflowData,
@@ -7,8 +8,12 @@ import {
 import { useQueryGraphStep, validatePresenceOfStep } from "../../common"
 import { useRemoteQueryStep } from "../../common/steps/use-remote-query"
 import { cartFieldsForPricingContext } from "../utils/fields"
-import { ListShippingOptionsForCartWorkflowInput } from "@medusajs/types"
+import {
+  AdditionalData,
+  ListShippingOptionsForCartWorkflowInput,
+} from "@medusajs/types"
 import { isDefined } from "@medusajs/framework/utils"
+import { pricingContextResult } from "../utils/schemas"
 
 export const listShippingOptionsForCartWorkflowId =
   "list-shipping-options-for-cart"
@@ -38,14 +43,60 @@ export const listShippingOptionsForCartWorkflowId =
  * @summary
  *
  * List a cart's shipping options.
+ * 
+ * @property hooks.setPricingContext - This hook is executed before the shipping options are retrieved. You can consume this hook to return any custom context useful for the prices retrieval of shipping options.
+ * 
+ * For example, assuming you have the following custom pricing rule:
+ * 
+ * ```json
+ * {
+ *   "attribute": "location_id",
+ *   "operator": "eq",
+ *   "value": "sloc_123",
+ * }
+ * ```
+ * 
+ * You can consume the `setPricingContext` hook to add the `location_id` context to the prices calculation:
+ * 
+ * ```ts
+ * import { listShippingOptionsForCartWorkflow } from "@medusajs/medusa/core-flows";
+ * import { StepResponse } from "@medusajs/workflows-sdk";
+ * 
+ * listShippingOptionsForCartWorkflow.hooks.setPricingContext((
+ *   { cart, fulfillmentSetIds, additional_data }, { container }
+ * ) => {
+ *   return new StepResponse({
+ *     location_id: "sloc_123", // Special price for in-store purchases
+ *   });
+ * });
+ * ```
+ * 
+ * The shipping options' prices will now be retrieved using the context you return.
+ * 
+ * :::note
+ * 
+ * Learn more about prices calculation context in the [Prices Calculation](https://docs.medusajs.com/resources/commerce-modules/pricing/price-calculation) documentation.
+ * 
+ * :::
  */
 export const listShippingOptionsForCartWorkflow = createWorkflow(
   listShippingOptionsForCartWorkflowId,
-  (input: WorkflowData<ListShippingOptionsForCartWorkflowInput>) => {
+  (
+    input: WorkflowData<
+      ListShippingOptionsForCartWorkflowInput & AdditionalData
+    >
+  ) => {
     const cartQuery = useQueryGraphStep({
       entity: "cart",
       filters: { id: input.cart_id },
-      fields: cartFieldsForPricingContext,
+      fields: [
+        ...cartFieldsForPricingContext,
+        "items.*",
+        "items.variant.manage_inventory",
+        "items.variant.inventory_items.inventory_item_id",
+        "items.variant.inventory_items.inventory.requires_shipping",
+        "items.variant.inventory_items.inventory.location_levels.*",
+      ],
       options: { throwIfKeyNotFound: true },
     }).config({ name: "get-cart" })
 
@@ -89,9 +140,22 @@ export const listShippingOptionsForCartWorkflow = createWorkflow(
       }
     )
 
+    const setPricingContext = createHook(
+      "setPricingContext",
+      {
+        cart: cart,
+        fulfillmentSetIds,
+        additional_data: input.additional_data,
+      },
+      {
+        resultValidator: pricingContextResult,
+      }
+    )
+    const setPricingContextResult = setPricingContext.getResult()
+
     const queryVariables = transform(
-      { input, fulfillmentSetIds, cart },
-      ({ input, fulfillmentSetIds, cart }) => {
+      { input, fulfillmentSetIds, cart, setPricingContextResult },
+      ({ input, fulfillmentSetIds, cart, setPricingContextResult }) => {
         return {
           id: input.option_ids,
 
@@ -115,7 +179,17 @@ export const listShippingOptionsForCartWorkflow = createWorkflow(
             },
           },
 
-          calculated_price: { context: cart },
+          calculated_price: {
+            context: {
+              ...cart,
+              ...(setPricingContextResult ? setPricingContextResult : {}),
+              currency_code: cart.currency_code,
+              region_id: cart.region_id,
+              region: cart.region,
+              customer_id: cart.customer_id,
+              customer: cart.customer,
+            },
+          },
         }
       }
     )
@@ -132,6 +206,7 @@ export const listShippingOptionsForCartWorkflow = createWorkflow(
         "data",
         "service_zone.fulfillment_set_id",
         "service_zone.fulfillment_set.type",
+        "service_zone.fulfillment_set.location.id",
         "service_zone.fulfillment_set.location.address.*",
 
         "type.id",
@@ -154,19 +229,48 @@ export const listShippingOptionsForCartWorkflow = createWorkflow(
     }).config({ name: "shipping-options-query" })
 
     const shippingOptionsWithPrice = transform(
-      { shippingOptions },
-      ({ shippingOptions }) =>
+      { shippingOptions, cart },
+      ({ shippingOptions, cart }) =>
         shippingOptions.map((shippingOption) => {
           const price = shippingOption.calculated_price
+
+          const locationId =
+            shippingOption.service_zone.fulfillment_set.location.id
+
+          const itemsAtLocationWithoutAvailableQuantity = cart.items.filter(
+            (item) => {
+              if (!item.variant?.manage_inventory) {
+                return false
+              }
+
+              return item.variant.inventory_items.some((inventoryItem) => {
+                if (!inventoryItem.inventory.requires_shipping) {
+                  return false
+                }
+
+                const level = inventoryItem.inventory.location_levels.find(
+                  (locationLevel) => {
+                    return locationLevel.location_id === locationId
+                  }
+                )
+
+                return !level ? true : level.available_quantity < item.quantity
+              })
+            }
+          )
 
           return {
             ...shippingOption,
             amount: price?.calculated_amount,
             is_tax_inclusive: !!price?.is_calculated_price_tax_inclusive,
+            insufficient_inventory:
+              itemsAtLocationWithoutAvailableQuantity.length > 0,
           }
         })
     )
 
-    return new WorkflowResponse(shippingOptionsWithPrice)
+    return new WorkflowResponse(shippingOptionsWithPrice, {
+      hooks: [setPricingContext] as const,
+    })
   }
 )

@@ -112,8 +112,8 @@ export const EditShippingOptionForm = ({
 
   return (
     <RouteDrawer.Form form={form}>
-      <KeyboundForm onSubmit={handleSubmit} className="flex flex-1 flex-col">
-        <RouteDrawer.Body>
+      <KeyboundForm onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
+        <RouteDrawer.Body className="overflow-y-auto">
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-8">
               {!isPickup && (
@@ -207,21 +207,17 @@ export const EditShippingOptionForm = ({
                 />
               </div>
 
-              {!isPickup && (
-                <>
-                  <Divider />
-                  <SwitchBox
-                    control={form.control}
-                    name="enabled_in_store"
-                    label={t(
-                      "stockLocations.shippingOptions.fields.enableInStore.label"
-                    )}
-                    description={t(
-                      "stockLocations.shippingOptions.fields.enableInStore.hint"
-                    )}
-                  />
-                </>
-              )}
+              <Divider />
+              <SwitchBox
+                control={form.control}
+                name="enabled_in_store"
+                label={t(
+                  "stockLocations.shippingOptions.fields.enableInStore.label"
+                )}
+                description={t(
+                  "stockLocations.shippingOptions.fields.enableInStore.hint"
+                )}
+              />
             </div>
           </div>
         </RouteDrawer.Body>

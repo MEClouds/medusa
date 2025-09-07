@@ -68,6 +68,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const product = await productModuleService.retrieveProduct(
@@ -104,6 +111,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the products:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const products = await productModuleService.listProducts(
@@ -158,6 +172,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the products:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const [products, count] =
@@ -398,6 +419,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const tag = await productModuleService.retrieveProductTag(
@@ -434,6 +462,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product tags:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const tags = await productModuleService.listProductTags(
@@ -488,6 +523,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product tags:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const [tags, count] =
@@ -1038,6 +1080,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const option = await productModuleService.retrieveProductOption(
@@ -1074,6 +1123,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product options:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const options = await productModuleService.listProductOptions(
@@ -1128,8 +1184,15 @@ export interface IProductModuleService extends IModuleService {
    *   })
    * ```
    *
-   * To specify relations that should be retrieved within the product types:
-   *
+   * To specify relations that should be retrieved within the product options:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
+   * 
    * ```ts
    * const [options, count] =
    *   await productModuleService.listAndCountProductOptions(
@@ -1390,6 +1453,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product option values:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const options = await productModuleService.listProductOptionValues(
@@ -1440,13 +1510,23 @@ export interface IProductModuleService extends IModuleService {
    *   })
    * ```
    *
-   * To specify relations that should be retrieved within the product types:
-   *
+   * To specify relations that should be retrieved within the product option values:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
+   * 
    * ```ts
    * const [options, count] =
    *   await productModuleService.listAndCountProductOptionValues(
    *     {
    *       id: ["optval_123", "optval_321"],
+   *     },
+   *     {
+   *       relations: ["option"],
    *     }
    *   )
    * ```
@@ -1483,11 +1563,9 @@ export interface IProductModuleService extends IModuleService {
    * const options = await productModuleService.createProductOptionValues([
    *   {
    *     value: "Blue",
-   *     option_id: "opt_123",
    *   },
    *   {
    *     value: "Green",
-   *     option_id: "opt_123",
    *   },
    * ])
    *
@@ -1507,7 +1585,6 @@ export interface IProductModuleService extends IModuleService {
    * @example
    * const option = await productModuleService.createProductOptionValues({
    *   value: "Blue",
-   *   option_id: "opt_123",
    * })
    *
    */
@@ -1653,6 +1730,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const variant = await productModuleService.retrieveProductVariant(
@@ -1689,6 +1773,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product variants:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const variants = await productModuleService.listProductVariants(
@@ -1743,6 +1834,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product variants:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const [variants, count] =
@@ -2010,6 +2108,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const collection =
@@ -2045,6 +2150,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product collections:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const collections =
@@ -2101,6 +2213,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product collections:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const [collections, count] =
@@ -2357,6 +2476,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const category = await productModuleService.retrieveProductCategory(
@@ -2393,6 +2519,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product categories:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const categories = await productModuleService.listProductCategories(
@@ -2447,6 +2580,13 @@ export interface IProductModuleService extends IModuleService {
    * ```
    *
    * To specify relations that should be retrieved within the product categories:
+   * 
+   * :::note
+   * 
+   * You can only retrieve data models defined in the same module. To retrieve linked data models
+   * from other modules, use [Query](https://docs.medusajs.com/learn/fundamentals/module-links/query) instead.
+   * 
+   * :::
    *
    * ```ts
    * const [categories, count] =

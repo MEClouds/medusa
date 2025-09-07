@@ -1,5 +1,4 @@
 import {
-  RemoteQueryEntryPoints,
   RemoteQueryFilters,
   RemoteQueryGraph,
   RemoteQueryInput,
@@ -31,15 +30,24 @@ const ARGUMENTS = "__args"
 
 export function toRemoteQuery<const TEntity extends string>(
   config: {
-    entity: TEntity | keyof RemoteQueryEntryPoints
+    entity: TEntity
     fields: RemoteQueryInput<TEntity>["fields"]
     filters?: RemoteQueryFilters<TEntity>
     pagination?: Partial<RemoteQueryInput<TEntity>["pagination"]>
     context?: Record<string, any>
+    withDeleted?: boolean
+    strategy?: "joined" | "select-in"
   },
   entitiesMap: Map<string, any>
 ): RemoteQueryGraph<TEntity> {
-  const { entity, fields = [], filters = {}, context = {} } = config
+  const {
+    entity,
+    fields = [],
+    filters = {},
+    context = {},
+    withDeleted,
+    strategy,
+  } = config
 
   const joinerQuery: Record<string, any> = {
     [entity]: {
@@ -69,10 +77,16 @@ export function toRemoteQuery<const TEntity extends string>(
         if (topLevel) {
           target[ARGUMENTS] ??= {}
           target[ARGUMENTS][prop] = normalizedFilters
+          if (withDeleted) {
+            target[ARGUMENTS]["withDeleted"] = true
+          }
         } else {
           target[key] ??= {}
           target[key][ARGUMENTS] ??= {}
           target[key][ARGUMENTS][prop] = normalizedFilters
+          if (withDeleted) {
+            target[key][ARGUMENTS]["withDeleted"] = true
+          }
         }
       } else {
         if (!topLevel) {
@@ -115,6 +129,17 @@ export function toRemoteQuery<const TEntity extends string>(
       ...joinerQuery[entity][ARGUMENTS],
       ...config.pagination,
     }
+  }
+
+  if (strategy) {
+    joinerQuery[entity][ARGUMENTS] ??= {} as any
+    joinerQuery[entity][ARGUMENTS]["options"] ??= {} as any
+    joinerQuery[entity][ARGUMENTS]["options"]["strategy"] = strategy
+  }
+
+  if (withDeleted) {
+    joinerQuery[entity][ARGUMENTS] ??= {} as any
+    joinerQuery[entity][ARGUMENTS]["withDeleted"] = true
   }
 
   parseAndAssignFilters(

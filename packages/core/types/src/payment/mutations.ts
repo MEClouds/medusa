@@ -1,6 +1,10 @@
 import { BigNumberInput } from "../totals"
-import { PaymentCollectionStatus } from "./common"
-import { PaymentCustomerDTO, PaymentProviderContext } from "./provider"
+import { PaymentCollectionStatus, PaymentSessionStatus } from "./common"
+import {
+  PaymentAccountHolderDTO,
+  PaymentCustomerDTO,
+  PaymentProviderContext,
+} from "./provider"
 
 /**
  * The payment collection to be created.
@@ -208,6 +212,11 @@ export interface CreatePaymentSessionDTO {
    * Necessary context data for the associated payment provider.
    */
   context?: PaymentProviderContext
+
+  /**
+   * Holds custom data in key-value pairs.
+   */
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -235,9 +244,19 @@ export interface UpdatePaymentSessionDTO {
   amount: BigNumberInput
 
   /**
+   * The status of the payment session.
+   */
+  status?: PaymentSessionStatus
+
+  /**
    * Necessary context data for the associated payment provider.
    */
   context?: PaymentProviderContext
+
+  /**
+   * Holds custom data in key-value pairs.
+   */
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -273,6 +292,33 @@ export interface CreateAccountHolderDTO {
      */
     customer: PaymentCustomerDTO
   }
+}
+
+export interface UpdateAccountHolderDTO {
+  /**
+   * The ID of the account holder.
+   */
+  id: string
+
+  /**
+   * The provider's ID.
+   */
+  provider_id: string
+
+  /**
+   * Necessary context data for the associated payment provider.
+   */
+  context: PaymentProviderContext & {
+    /**
+     * The account holder information from Medusa.
+     */
+    account_holder: PaymentAccountHolderDTO
+  }
+
+  /**
+   * Holds custom data in key-value pairs.
+   */
+  metadata?: Record<string, unknown>
 }
 
 /**

@@ -24,9 +24,9 @@ import { INavItem, NavItem } from "../../layout/nav-item"
 import { Shell } from "../../layout/shell"
 
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useDashboardExtension } from "../../../extensions"
 import { useLogout } from "../../../hooks/api"
 import { queryClient } from "../../../lib/query-client"
+import { useExtension } from "../../../providers/extension-provider"
 import { useSearch } from "../../../providers/search-provider"
 import { UserMenu } from "../user-menu"
 import { useDocumentDirection } from "../../../hooks/use-document-direction"
@@ -285,7 +285,7 @@ const Searchbar = () => {
 const CoreRouteSection = () => {
   const coreRoutes = useCoreRoutes()
 
-  const { getMenu } = useDashboardExtension()
+  const { getMenu } = useExtension()
 
   const menuItems = getMenu("coreExtensions")
 
@@ -310,7 +310,7 @@ const CoreRouteSection = () => {
 
 const ExtensionRouteSection = () => {
   const { t } = useTranslation()
-  const { getMenu } = useDashboardExtension()
+  const { getMenu } = useExtension()
 
   const menuItems = getMenu("coreExtensions").filter((item) => !item.nested)
 
