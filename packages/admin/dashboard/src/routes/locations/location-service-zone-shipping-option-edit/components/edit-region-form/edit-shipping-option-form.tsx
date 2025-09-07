@@ -19,6 +19,7 @@ import {
   FulfillmentSetType,
   ShippingOptionPriceType,
 } from "../../../common/constants"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 type EditShippingOptionFormProps = {
   locationId: string
@@ -40,7 +41,7 @@ export const EditShippingOptionForm = ({
 }: EditShippingOptionFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-
+  const direction = useDocumentDirection()
   const isPickup = type === FulfillmentSetType.Pickup
 
   const shippingProfiles = useComboboxData({
@@ -129,12 +130,7 @@ export const EditShippingOptionForm = ({
                         </Form.Label>
                         <Form.Control>
                           <RadioGroup
-                            dir={
-                              document.documentElement.getAttribute("dir") as
-                                | "rtl"
-                                | "ltr"
-                                | undefined
-                            }
+                            dir={direction}
                             {...field}
                             onValueChange={field.onChange}
                           >

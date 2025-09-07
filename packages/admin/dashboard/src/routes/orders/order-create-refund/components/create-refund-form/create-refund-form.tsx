@@ -21,6 +21,7 @@ import { getCurrencySymbol } from "../../../../../lib/data/currencies"
 import { formatCurrency } from "../../../../../lib/format-currency"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
 import { getPaymentsFromOrder } from "../../../order-detail/components/order-payment-section"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 type CreateRefundFormProps = {
   order: HttpTypes.AdminOrder
@@ -45,6 +46,7 @@ export const CreateRefundForm = ({
   const payments = getPaymentsFromOrder(order)
   const payment = payments.find((p) => p.id === paymentId)!
   const paymentAmount = payment?.amount || 0
+  const direction = useDocumentDirection()
   const form = useForm<zod.infer<typeof CreateRefundSchema>>({
     defaultValues: {
       amount: paymentAmount,
@@ -102,12 +104,7 @@ export const CreateRefundForm = ({
         <RouteDrawer.Body className="flex-1 overflow-auto">
           <div className="flex flex-col gap-y-4">
             <Select
-              dir={
-                document.documentElement.getAttribute("dir") as
-                  | "rtl"
-                  | "ltr"
-                  | undefined
-              }
+              dir={direction}
               value={payment?.id}
               onValueChange={(value) => {
                 navigate(`/orders/${order.id}/refund?paymentId=${value}`, {

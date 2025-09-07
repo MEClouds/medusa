@@ -5,6 +5,7 @@ import { Form } from "../../../../../../components/common/form"
 import { Combobox } from "../../../../../../components/inputs/combobox"
 import { usePromotionRuleValues } from "../../../../../../hooks/api/promotions"
 import { useStore } from "../../../../../../hooks/api/store"
+import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 
 type RuleValueFormFieldType = {
   form: any
@@ -47,7 +48,7 @@ export const RuleValueFormField = ({
   const attribute = attributes?.find(
     (attr) => attr.value === fieldRule.attribute
   )
-
+  const direction = useDocumentDirection()
   const { store, isLoading: isStoreLoading } = useStore()
   const { values: options = [] } = usePromotionRuleValues(
     ruleType,
@@ -108,12 +109,7 @@ export const RuleValueFormField = ({
             <Form.Item className="basis-1/2">
               <Form.Control>
                 <Select
-                  dir={
-                    document.documentElement.getAttribute("dir") as
-                      | "rtl"
-                      | "ltr"
-                      | undefined
-                  }
+                  dir={direction}
                   {...field}
                   value={
                     Array.isArray(field.value) ? field.value[0] : field.value

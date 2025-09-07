@@ -23,6 +23,7 @@ import { ProductCreateDetailsForm } from "../product-create-details-form"
 import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form"
 import { ProductCreateOrganizeForm } from "../product-create-organize-form"
 import { ProductCreateVariantsForm } from "../product-create-variants-form"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 enum Tab {
   DETAILS = "details",
@@ -60,7 +61,7 @@ export const ProductCreateForm = ({
   const { handleSuccess } = useRouteModal()
   const { getFormConfigs } = useDashboardExtension()
   const configs = getFormConfigs("product", "create")
-
+  const direction = useDocumentDirection()
   const form = useExtendableForm({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
@@ -248,12 +249,7 @@ export const ProductCreateForm = ({
         className="flex h-full flex-col"
       >
         <ProgressTabs
-          dir={
-            document.documentElement.getAttribute("dir") as
-              | "ltr"
-              | "rtl"
-              | undefined
-          }
+          dir={direction}
           value={tab}
           onValueChange={async (tab) => {
             const valid = await form.trigger()

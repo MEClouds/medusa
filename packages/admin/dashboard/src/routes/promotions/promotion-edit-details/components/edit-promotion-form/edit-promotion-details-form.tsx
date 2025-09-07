@@ -11,6 +11,7 @@ import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdatePromotion } from "../../../../../hooks/api/promotions"
 import { getCurrencySymbol } from "../../../../../lib/data/currencies"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 type EditPromotionFormProps = {
   promotion: AdminPromotion
@@ -71,7 +72,7 @@ export const EditPromotionDetailsForm = ({
       }
     )
   })
-
+  const direction = useDocumentDirection()
   return (
     <RouteDrawer.Form form={form}>
       <KeyboundForm
@@ -89,12 +90,7 @@ export const EditPromotionDetailsForm = ({
                     <Form.Label>{t("promotions.form.status.label")}</Form.Label>
                     <Form.Control>
                       <RadioGroup
-                        dir={
-                          document.documentElement.getAttribute("dir") as
-                            | "rtl"
-                            | "ltr"
-                            | undefined
-                        }
+                        dir={direction}
                         className="flex-col gap-y-3"
                         {...field}
                         value={field.value}
@@ -140,12 +136,7 @@ export const EditPromotionDetailsForm = ({
                     <Form.Label>{t("promotions.form.method.label")}</Form.Label>
                     <Form.Control>
                       <RadioGroup
-                        dir={
-                          document.documentElement.getAttribute("dir") as
-                            | "rtl"
-                            | "ltr"
-                            | undefined
-                        }
+                        dir={direction}
                         className="flex-col gap-y-3"
                         {...field}
                         value={field.value}
@@ -212,11 +203,7 @@ export const EditPromotionDetailsForm = ({
                     <Form.Label>{t("promotions.fields.value_type")}</Form.Label>
                     <Form.Control>
                       <RadioGroup
-                        dir={
-                          document.documentElement.getAttribute("dir") as
-                            | "rtl"
-                            | "ltr"
-                            | undefined
+                        dir={direction}
                         }
                         className="flex-col gap-y-3"
                         {...field}
@@ -305,11 +292,7 @@ export const EditPromotionDetailsForm = ({
                     <Form.Label>{t("promotions.fields.allocation")}</Form.Label>
                     <Form.Control>
                       <RadioGroup
-                        dir={
-                          document.documentElement.getAttribute("dir") as
-                            | "rtl"
-                            | "ltr"
-                            | undefined
+                        dir={direction}
                         }
                         className="flex-col gap-y-3"
                         {...field}
