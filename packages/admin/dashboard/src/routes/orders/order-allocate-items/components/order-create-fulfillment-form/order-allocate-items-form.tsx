@@ -19,6 +19,7 @@ import { useStockLocations } from "../../../../../hooks/api/stock-locations"
 import { queryClient } from "../../../../../lib/query-client"
 import { AllocateItemsSchema } from "./constants"
 import { OrderAllocateItemsItem } from "./order-allocate-items-item"
+import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 
 type OrderAllocateItemsFormProps = {
   order: AdminOrder
@@ -27,7 +28,7 @@ type OrderAllocateItemsFormProps = {
 export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-
+  const direction = useDocumentDirection()
   const [disableSubmit, setDisableSubmit] = useState(false)
   const [filterTerm, setFilterTerm] = useState("")
 
@@ -220,11 +221,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                             <div className="flex-1">
                               <Form.Control>
                                 <Select
-                                  dir={
-                                    document.documentElement.getAttribute(
-                                      "dir"
-                                    ) as "rtl" | "ltr" | undefined
-                                  }
+                                  dir={direction}
                                   onValueChange={onChange}
                                   {...field}
                                 >

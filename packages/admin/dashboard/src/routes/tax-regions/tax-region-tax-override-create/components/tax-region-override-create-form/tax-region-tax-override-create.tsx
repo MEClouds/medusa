@@ -36,6 +36,7 @@ import {
   TaxRateRuleReferenceSchema,
 } from "../../../common/schemas"
 import { createTaxRulePayload } from "../../../common/utils"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 const TaxRegionCreateTaxOverrideSchema = z.object({
   name: z.string().min(1),
@@ -75,7 +76,7 @@ export const TaxRegionCreateTaxOverrideForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const { setIsOpen } = useStackedModal()
-
+  const direction = useDocumentDirection()
   const form = useForm<z.infer<typeof TaxRegionCreateTaxOverrideSchema>>({
     defaultValues: {
       name: "",
@@ -522,11 +523,7 @@ export const TaxRegionCreateTaxOverrideForm = ({
                                   <div className="text-ui-fg-subtle grid gap-1.5 px-1.5 md:grid-cols-2">
                                     {isLast ? (
                                       <Select
-                                        dir={
-                                          document.documentElement.getAttribute(
-                                            "dir"
-                                          ) as "rtl" | "ltr" | undefined
-                                        }
+                                        dir={direction}
                                         value={type}
                                         onValueChange={handleChangeType}
                                       >

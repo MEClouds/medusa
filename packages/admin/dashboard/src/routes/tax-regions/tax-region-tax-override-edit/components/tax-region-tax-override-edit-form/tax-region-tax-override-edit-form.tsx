@@ -37,6 +37,7 @@ import {
 } from "../../../common/schemas"
 import { createTaxRulePayload } from "../../../common/utils"
 import { InitialRuleValues } from "../../types"
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 type TaxRegionTaxOverrideEditFormProps = {
   taxRate: HttpTypes.AdminTaxRate
@@ -77,7 +78,7 @@ export const TaxRegionTaxOverrideEditForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const { setIsOpen } = useStackedModal()
-
+  const direction = useDocumentDirection()
   const form = useForm<z.infer<typeof TaxRegionTaxRateEditSchema>>({
     defaultValues: {
       name: taxRate.name,
@@ -487,11 +488,7 @@ export const TaxRegionTaxOverrideEditForm = ({
                               <div className="text-ui-fg-subtle grid gap-1.5 px-1.5 md:grid-cols-2">
                                 {isLast ? (
                                   <Select
-                                    dir={
-                                      document.documentElement.getAttribute(
-                                        "dir"
-                                      ) as "rtl" | "ltr" | undefined
-                                    }
+                                    dir={direction}
                                     value={type}
                                     onValueChange={handleChangeType}
                                   >
