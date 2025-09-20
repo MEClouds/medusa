@@ -1,5 +1,62 @@
 # Change Log
 
+## 2.10.4
+
+### Patch Changes
+
+- [#13450](https://github.com/medusajs/medusa/pull/13450) [`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186) Thanks [@adrien2p](https://github.com/adrien2p)! - chore(): Upgrade mikro orm 6.5.4
+
+- Updated dependencies [[`0695c5844f7e28e46dc3a6087b981e69ed4e41ba`](https://github.com/medusajs/medusa/commit/0695c5844f7e28e46dc3a6087b981e69ed4e41ba), [`4c1c1dd4c0790597d7d881bb979bb9c8d8fd35e3`](https://github.com/medusajs/medusa/commit/4c1c1dd4c0790597d7d881bb979bb9c8d8fd35e3), [`cb716856b653c31178a5977b17ec77eed4c9c241`](https://github.com/medusajs/medusa/commit/cb716856b653c31178a5977b17ec77eed4c9c241), [`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186)]:
+  - @medusajs/auth-emailpass@2.10.4
+  - @medusajs/promotion@2.10.4
+  - @medusajs/workflow-engine-redis@2.10.4
+  - @medusajs/workflow-engine-inmemory@2.10.4
+  - @medusajs/api-key@2.10.4
+  - @medusajs/auth@2.10.4
+  - @medusajs/cart@2.10.4
+  - @medusajs/currency@2.10.4
+  - @medusajs/customer@2.10.4
+  - @medusajs/file@2.10.4
+  - @medusajs/fulfillment@2.10.4
+  - @medusajs/index@2.10.4
+  - @medusajs/core-flows@2.10.4
+  - @medusajs/framework@2.10.4
+  - @medusajs/admin-bundler@2.10.4
+  - @medusajs/draft-order@2.10.4
+  - @medusajs/analytics@2.10.4
+  - @medusajs/inventory@2.10.4
+  - @medusajs/link-modules@2.10.4
+  - @medusajs/locking@2.10.4
+  - @medusajs/notification@2.10.4
+  - @medusajs/order@2.10.4
+  - @medusajs/payment@2.10.4
+  - @medusajs/pricing@2.10.4
+  - @medusajs/product@2.10.4
+  - @medusajs/region@2.10.4
+  - @medusajs/sales-channel@2.10.4
+  - @medusajs/settings@2.10.4
+  - @medusajs/stock-location@2.10.4
+  - @medusajs/store@2.10.4
+  - @medusajs/tax@2.10.4
+  - @medusajs/user@2.10.4
+  - @medusajs/cache-inmemory@2.10.4
+  - @medusajs/cache-redis@2.10.4
+  - @medusajs/event-bus-local@2.10.4
+  - @medusajs/event-bus-redis@2.10.4
+  - @medusajs/analytics-local@2.10.4
+  - @medusajs/analytics-posthog@2.10.4
+  - @medusajs/auth-github@2.10.4
+  - @medusajs/auth-google@2.10.4
+  - @medusajs/file-local@2.10.4
+  - @medusajs/file-s3@2.10.4
+  - @medusajs/fulfillment-manual@2.10.4
+  - @medusajs/locking-postgres@2.10.4
+  - @medusajs/locking-redis@2.10.4
+  - @medusajs/notification-local@2.10.4
+  - @medusajs/notification-sendgrid@2.10.4
+  - @medusajs/payment-stripe@2.10.4
+  - @medusajs/telemetry@2.10.4
+
 ## 2.10.3
 
 ### Patch Changes

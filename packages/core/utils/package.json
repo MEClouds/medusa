@@ -1,6 +1,6 @@
 {
   "name": "@medusajs/utils",
-  "version": "2.10.3",
+  "version": "2.10.4",
   "description": "Medusa utilities functions shared by Medusa core and Modules",
   "main": "dist/index.js",
   "exports": {
@@ -26,7 +26,7 @@
   "author": "Medusa",
   "license": "MIT",
   "devDependencies": {
-    "@medusajs/types": "2.10.3",
+    "@medusajs/types": "2.10.4",
     "@mikro-orm/core": "6.5.4",
     "@mikro-orm/knex": "6.5.4",
     "@mikro-orm/migrations": "6.5.4",

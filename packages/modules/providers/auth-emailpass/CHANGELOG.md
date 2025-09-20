@@ -1,5 +1,14 @@
 # @medusajs/auth-emailpass
 
+## 2.10.4
+
+### Patch Changes
+
+- [#13537](https://github.com/medusajs/medusa/pull/13537) [`0695c5844f7e28e46dc3a6087b981e69ed4e41ba`](https://github.com/medusajs/medusa/commit/0695c5844f7e28e46dc3a6087b981e69ed4e41ba) Thanks [@willbouch](https://github.com/willbouch)! - fix(auth-emailpass): better handle identity with same email error
+
+- Updated dependencies [[`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186)]:
+  - @medusajs/framework@2.10.4
+
 ## 2.10.3
 
 ### Patch Changes
