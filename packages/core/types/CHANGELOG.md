@@ -1,5 +1,13 @@
 # @medusajs/types
 
+## 2.10.4
+
+### Patch Changes
+
+- [#13558](https://github.com/medusajs/medusa/pull/13558) [`e5a82518f1672b11eba0466f3c001f9076d21f0b`](https://github.com/medusajs/medusa/commit/e5a82518f1672b11eba0466f3c001f9076d21f0b) Thanks [@willbouch](https://github.com/willbouch)! - fix(types): pluralize word settings
+
+- [#13450](https://github.com/medusajs/medusa/pull/13450) [`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186) Thanks [@adrien2p](https://github.com/adrien2p)! - chore(): Upgrade mikro orm 6.5.4
+
 ## 2.10.3
 
 ### Patch Changes

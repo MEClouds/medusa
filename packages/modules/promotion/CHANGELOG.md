@@ -1,5 +1,14 @@
 # @medusajs/promotion
 
+## 2.10.4
+
+### Patch Changes
+
+- [#13556](https://github.com/medusajs/medusa/pull/13556) [`4c1c1dd4c0790597d7d881bb979bb9c8d8fd35e3`](https://github.com/medusajs/medusa/commit/4c1c1dd4c0790597d7d881bb979bb9c8d8fd35e3) Thanks [@adrien2p](https://github.com/adrien2p)! - Chore(): Further promotions pre filtering improvements
+
+- Updated dependencies [[`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186)]:
+  - @medusajs/framework@2.10.4
+
 ## 2.10.3
 
 ### Patch Changes

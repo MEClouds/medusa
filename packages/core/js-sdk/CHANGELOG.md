@@ -1,5 +1,7 @@
 # @medusajs/js-sdk
 
+## 2.10.4
+
 ## 2.10.3
 
 ### Patch Changes

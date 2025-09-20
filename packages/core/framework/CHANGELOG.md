@@ -1,5 +1,20 @@
 # @medusajs/framework
 
+## 2.10.4
+
+### Patch Changes
+
+- [#13450](https://github.com/medusajs/medusa/pull/13450) [`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186) Thanks [@adrien2p](https://github.com/adrien2p)! - chore(): Upgrade mikro orm 6.5.4
+
+- Updated dependencies [[`e5a82518f1672b11eba0466f3c001f9076d21f0b`](https://github.com/medusajs/medusa/commit/e5a82518f1672b11eba0466f3c001f9076d21f0b), [`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186)]:
+  - @medusajs/types@2.10.4
+  - @medusajs/modules-sdk@2.10.4
+  - @medusajs/orchestration@2.10.4
+  - @medusajs/utils@2.10.4
+  - @medusajs/workflows-sdk@2.10.4
+  - @medusajs/cli@2.10.4
+  - @medusajs/telemetry@2.10.4
+
 ## 2.10.3
 
 ### Patch Changes

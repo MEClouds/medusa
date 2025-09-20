@@ -1,5 +1,17 @@
 # Change Log
 
+## 2.10.4
+
+### Patch Changes
+
+- [#13546](https://github.com/medusajs/medusa/pull/13546) [`1fd439e321d8284ab7218333ab83125af66afb02`](https://github.com/medusajs/medusa/commit/1fd439e321d8284ab7218333ab83125af66afb02) Thanks [@willbouch](https://github.com/willbouch)! - fix(medusa-test-utils): add health endpoint in test server
+
+- [#13450](https://github.com/medusajs/medusa/pull/13450) [`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186) Thanks [@adrien2p](https://github.com/adrien2p)! - chore(): Upgrade mikro orm 6.5.4
+
+- Updated dependencies [[`8ece06d8ed6a197ebb370918c49a3ec5c21dd186`](https://github.com/medusajs/medusa/commit/8ece06d8ed6a197ebb370918c49a3ec5c21dd186)]:
+  - @medusajs/medusa@2.10.4
+  - @medusajs/framework@2.10.4
+
 ## 2.10.3
 
 ### Patch Changes
